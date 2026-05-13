@@ -12,6 +12,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import cors from "cors"
 
+
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
@@ -31,8 +32,9 @@ app.use(routerUser)
 app.use(routerTreinner)
 
 app.use(errorGlobal)
-const port = process.env.port
-app.listen(port,()=>{
-    console.log("Servidor rodando em http://localhost:3000");
-    
-})
+
+const PORT = Number(process.env.PORT) || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+});
