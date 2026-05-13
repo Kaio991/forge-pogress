@@ -14,7 +14,7 @@ export default function Login() {
         setLoading(true)
 
         try {
-            const resposta = await axios.post('http://localhost:3000/usuario/login', {
+            const resposta = await axios.post('https://forge-pogress.onrender.com/usuario/login', {
                 email: email,
                 senha: senha
             });

@@ -18,7 +18,7 @@ export default function CriarTreino() {
         try {
             const token = localStorage.getItem('token');
 
-            await axios.post('http://localhost:3000/treino/criar',
+            await axios.post('https://forge-pogress.onrender.com/treino/criar',
                 {
                     exercicio,
                     carga: Number(carga),

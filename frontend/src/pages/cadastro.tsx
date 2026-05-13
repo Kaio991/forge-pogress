@@ -18,7 +18,7 @@ export default function Cadastro() {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('http://localhost:3000/usuario/cadastro', {
+            await axios.post('https://forge-pogress.onrender.com/usuario/cadastro', {
                 nome,
                 email,
                 senha,

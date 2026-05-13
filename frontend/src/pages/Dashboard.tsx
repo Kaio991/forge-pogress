@@ -38,7 +38,7 @@ export default function Dashboard() {
     const carregarTreinos = async () => {
         try {
             const token = localStorage.getItem('token');
-            const res = await axios.get('http://localhost:3000/treino/listar', {
+            const res = await axios.get('https://forge-pogress.onrender.com/treino/listar', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setExercicios(res.data);
@@ -74,7 +74,7 @@ export default function Dashboard() {
 
         try {
             const token = localStorage.getItem('token');
-            await axios.delete(`http://localhost:3000/treino/deletar/${idParaDeletar}`, {
+            await axios.delete(`https://forge-pogress.onrender.com/treino/deletar/${idParaDeletar}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 

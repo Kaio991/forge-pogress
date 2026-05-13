@@ -28,7 +28,7 @@ export default function EditarTreino() {
             const buscarDados = async () => {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await axios.get(`http://localhost:3000/treino/listar`, {
+                    const res = await axios.get(`https://forge-pogress.onrender.com/treino/listar`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     // Filtra o exercício específico no array
