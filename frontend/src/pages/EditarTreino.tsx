@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../service/api';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 
 export default function EditarTreino() {
-    const { id } = useParams(); // Pega o ID da URL
-    const { state } = useLocation(); // Tenta pegar os dados vindos do Dashboard
+    const { id } = useParams();
+    const { state } = useLocation();
     const navigate = useNavigate();
 
     const [exercicio, setExercicio] = useState(state?.treino?.exercicio || '');
@@ -22,16 +22,11 @@ export default function EditarTreino() {
     const [loading, setLoading] = useState(false);
     const [buscando, setBuscando] = useState(!state?.treino);
 
-    // Caso o usuário dê F5, buscamos o treino específico pelo ID
     useEffect(() => {
         if (!state?.treino) {
             const buscarDados = async () => {
                 try {
-                    const token = localStorage.getItem('token');
-                    const res = await axios.get(`https://forge-pogress.onrender.com/treino/listar`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    // Filtra o exercício específico no array
+                    const res = await api.get(`/treino/listar`);
                     const treinoEncontrado = res.data.find((t: any) => t.id_do_treino === Number(id));
 
                     if (treinoEncontrado) {
@@ -53,15 +48,11 @@ export default function EditarTreino() {
         e.preventDefault();
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            await axios.put(`http://localhost:3000/treino/atualizar/${id}`,
-                {
-                    exercicio,
-                    carga: Number(carga),
-                    repeticoes: Number(repeticoes)
-                },
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await api.put(`/treino/atualizar/${id}`, {
+                exercicio,
+                carga: Number(carga),
+                repeticoes: Number(repeticoes)
+            });
             toast.success("Evolução registrada na Forja! 🔥");
             navigate('/dashboard');
         } catch (err: any) {
@@ -82,7 +73,6 @@ export default function EditarTreino() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4 relative overflow-hidden font-sans">
-            {/* Luzes de fundo */}
             <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full"></div>
 
             <div className="w-full max-w-md z-10 p-[1px] rounded-[32px] bg-gradient-to-b from-zinc-700 to-transparent">
@@ -103,7 +93,6 @@ export default function EditarTreino() {
                     </header>
 
                     <form onSubmit={handleUpdate} className="space-y-6">
-                        {/* Nome do Exercício */}
                         <div className="space-y-2">
                             <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                 <Dumbbell size={12} className="text-orange-600" /> Nome do Exercício
@@ -118,7 +107,6 @@ export default function EditarTreino() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            {/* Carga */}
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                     <Weight size={12} className="text-orange-600" /> Carga (kg)
@@ -132,7 +120,6 @@ export default function EditarTreino() {
                                 />
                             </div>
 
-                            {/* Repetições */}
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                     <Hash size={12} className="text-orange-600" /> Reps
@@ -154,9 +141,7 @@ export default function EditarTreino() {
                                 className="w-full group relative bg-orange-600 hover:bg-orange-500 py-5 rounded-2xl font-black text-white flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(234,88,12,0.2)] overflow-hidden"
                             >
                                 <span className="relative z-10 uppercase italic tracking-wider flex items-center gap-2">
-                                    {loading ? (
-                                        "Salvando..."
-                                    ) : (
+                                    {loading ? "Salvando..." : (
                                         <>
                                             <Save size={20} />
                                             Salvar Alterações

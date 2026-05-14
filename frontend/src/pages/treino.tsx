@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../service/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { PlusCircle, ArrowLeft, Dumbbell, Hash, Weight } from 'lucide-react';
@@ -16,18 +16,11 @@ export default function CriarTreino() {
         setLoading(true);
 
         try {
-            const token = localStorage.getItem('token');
-
-            await axios.post('https://forge-pogress.onrender.com/treino/criar',
-                {
-                    exercicio,
-                    carga: Number(carga),
-                    repeticoes: Number(repeticoes)
-                },
-                {
-                    headers: { Authorization: `Bearer ${token}` }
-                }
-            );
+            await api.post('/treino/criar', {
+                exercicio,
+                carga: Number(carga),
+                repeticoes: Number(repeticoes)
+            });
 
             toast.success("Exercício forjado com sucesso! 💪");
             navigate('/dashboard');
@@ -42,7 +35,6 @@ export default function CriarTreino() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#050505] relative overflow-hidden font-sans p-4">
-            {/* Luzes de fundo para manter o padrão do login */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full"></div>
 
             <div className="w-full max-w-md z-10 p-[1px] rounded-3xl bg-gradient-to-b from-zinc-700 to-transparent">
@@ -65,7 +57,6 @@ export default function CriarTreino() {
                     </header>
 
                     <form onSubmit={handleSalvar} className="space-y-6">
-                        {/* Campo Exercício */}
                         <div className="space-y-2">
                             <label className="text-xs font-bold text-zinc-500 uppercase ml-1 flex items-center gap-2">
                                 <Dumbbell size={14} /> Nome do Exercício
@@ -80,7 +71,6 @@ export default function CriarTreino() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            {/* Campo Carga */}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-zinc-500 uppercase ml-1 flex items-center gap-2">
                                     <Weight size={14} /> Carga (kg)
@@ -95,7 +85,6 @@ export default function CriarTreino() {
                                 />
                             </div>
 
-                            {/* Campo Repetições */}
                             <div className="space-y-2">
                                 <label className="text-xs font-bold text-zinc-500 uppercase ml-1 flex items-center gap-2">
                                     <Hash size={14} /> Repetições
@@ -117,9 +106,7 @@ export default function CriarTreino() {
                             className="w-full group relative bg-orange-600 hover:bg-orange-500 text-white font-black py-4 rounded-xl transition-all duration-300 shadow-[0_0_20px_rgba(234,88,12,0.3)] overflow-hidden flex items-center justify-center gap-2"
                         >
                             <span className="relative z-10 uppercase italic tracking-wider flex items-center gap-2">
-                                {loading ? (
-                                    "Forjando..."
-                                ) : (
+                                {loading ? "Forjando..." : (
                                     <>
                                         <PlusCircle size={20} />
                                         Forjar Exercício

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import axios from 'axios'
+import api from '../service/api'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 
@@ -14,7 +14,7 @@ export default function Login() {
         setLoading(true)
 
         try {
-            const resposta = await axios.post('https://forge-pogress.onrender.com/usuario/login', {
+            const resposta = await api.post('/usuario/login', {
                 email: email,
                 senha: senha
             });
@@ -22,12 +22,10 @@ export default function Login() {
             localStorage.setItem('token', resposta.data.token);
             localStorage.setItem('nomeUsuario', resposta.data.nome);
 
-            // Toast de Sucesso
             toast.success(`Acesso autorizado! Bem-vindo, ${resposta.data.nome || 'Monstro'}! 🏋️`);
 
             navigate('/dashboard');
         } catch (error: any) {
-            // Toast de Erro
             const mensagemErro = error.response?.data?.mensagem || 'Erro ao entrar. Verifique suas credenciais.';
             toast.error(mensagemErro);
             console.error('Erro no login:', error);
@@ -38,7 +36,6 @@ export default function Login() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#050505] relative overflow-hidden font-sans text-white">
-            {/* Luzes de fundo */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-orange-600/10 blur-[120px] rounded-full"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-900/10 blur-[120px] rounded-full"></div>
 
@@ -94,7 +91,6 @@ export default function Login() {
                         </button>
                     </form>
 
-                    {/* Seção de Cadastro - AGORA COM NAVEGAÇÃO FUNCIONANDO */}
                     <div className="mt-8 pt-6 border-t border-zinc-800/50 text-center">
                         <p className="text-zinc-500 text-xs mb-4 uppercase font-bold tracking-widest">Novo na equipe?</p>
                         <button

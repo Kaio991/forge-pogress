@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../service/api'
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { UserPlus, Mail, Lock, User, ArrowRight, Calendar, Scale, Ruler } from 'lucide-react';
@@ -18,7 +18,8 @@ export default function Cadastro() {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post('https://forge-pogress.onrender.com/usuario/cadastro', {
+            // Usando a instância 'api' configurada anteriormente
+            await api.post('/usuario/cadastro', {
                 nome,
                 email,
                 senha,
@@ -39,6 +40,7 @@ export default function Cadastro() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#050505] p-6 relative overflow-hidden font-sans text-white">
+            {/* Brilho de fundo */}
             <div className="absolute inset-0 bg-orange-600/5 blur-[120px] rounded-full scale-50"></div>
 
             <div className="w-full max-w-lg z-10 p-[1px] rounded-[32px] bg-gradient-to-b from-zinc-700 to-transparent">
@@ -59,14 +61,14 @@ export default function Cadastro() {
                                 <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                     <User size={12} className="text-orange-600" /> Nome
                                 </label>
-                                <input required value={nome} onChange={e => setNome(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all" placeholder="Seu nome" />
+                                <input required value={nome} onChange={e => setNome(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700" placeholder="Seu nome" />
                             </div>
 
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                     <Mail size={12} className="text-orange-600" /> E-mail
                                 </label>
-                                <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all" placeholder="email@exemplo.com" />
+                                <input required type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700" placeholder="email@exemplo.com" />
                             </div>
                         </div>
 
@@ -95,11 +97,16 @@ export default function Cadastro() {
                             <label className="text-[10px] font-black text-zinc-500 uppercase flex items-center gap-2 ml-1">
                                 <Lock size={12} className="text-orange-600" /> Senha
                             </label>
-                            <input required type="password" value={senha} onChange={e => setSenha(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all" placeholder="••••••••" />
+                            <input required type="password" value={senha} onChange={e => setSenha(e.target.value)} className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-3 focus:border-orange-600 outline-none transition-all placeholder:text-zinc-700" placeholder="••••••••" />
                         </div>
 
-                        <button disabled={loading} className="w-full group bg-orange-600 hover:bg-orange-500 py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(234,88,12,0.2)] mt-6 uppercase italic">
-                            {loading ? "Criando Perfil..." : (
+                        <button
+                            disabled={loading}
+                            className="w-full group bg-orange-600 hover:bg-orange-500 disabled:bg-zinc-800 disabled:text-zinc-500 py-5 rounded-2xl font-black flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(234,88,12,0.2)] mt-6 uppercase italic"
+                        >
+                            {loading ? (
+                                <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                            ) : (
                                 <>
                                     <span>Finalizar Cadastro</span>
                                     <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />

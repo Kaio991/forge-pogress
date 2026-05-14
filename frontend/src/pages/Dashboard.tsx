@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../service/api';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -37,10 +37,7 @@ export default function Dashboard() {
 
     const carregarTreinos = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const res = await axios.get('https://forge-pogress.onrender.com/treino/listar', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const res = await api.get('/treino/listar');
             setExercicios(res.data);
         } catch (err) {
             console.error("Erro ao carregar:", err);
@@ -73,10 +70,7 @@ export default function Dashboard() {
         if (!idParaDeletar) return;
 
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`https://forge-pogress.onrender.com/treino/deletar/${idParaDeletar}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.delete(`/treino/deletar/${idParaDeletar}`);
 
             setExercicios(exercicios.filter(t => t.id_do_treino !== idParaDeletar));
             setModalAberto(false);
@@ -145,7 +139,6 @@ export default function Dashboard() {
                 </div>
             )}
 
-            {/* Efeitos de Fundo */}
             <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full"></div>
 
             <header className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10 relative z-10">
@@ -194,7 +187,7 @@ export default function Dashboard() {
                                         tickLine={false}
                                         tick={{ fill: '#52525b', fontSize: 10 }}
                                         dy={10}
-                                        interval={0} // Garante que todos os nomes apareçam
+                                        interval={0}
                                     />
                                     <Tooltip
                                         cursor={{ fill: '#18181b' }}
@@ -211,7 +204,6 @@ export default function Dashboard() {
                     </section>
                 )}
 
-                {/* BUSCA COM DESIGN REFINADO */}
                 <div className="relative group">
                     <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-orange-500 transition-colors" size={20} />
                     <input
@@ -223,7 +215,6 @@ export default function Dashboard() {
                     />
                 </div>
 
-                {/* LISTAGEM RESPONSIVA */}
                 {loading ? (
                     <div className="flex flex-col items-center py-20 text-center">
                         <div className="animate-spin h-8 w-8 border-4 border-orange-600 border-t-transparent rounded-full mb-4"></div>
