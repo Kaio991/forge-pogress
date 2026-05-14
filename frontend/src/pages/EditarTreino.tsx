@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import api from '../service/api';
+import api from '../service/api'; // Importante: usar a sua instância configurada
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import {
@@ -7,8 +7,7 @@ import {
     ArrowLeft,
     Dumbbell,
     Weight,
-    Hash,
-    RotateCcw
+    Hash
 } from 'lucide-react';
 
 export default function EditarTreino() {
@@ -16,6 +15,7 @@ export default function EditarTreino() {
     const { state } = useLocation();
     const navigate = useNavigate();
 
+    // Inicia com os dados vindos do state (se houver) ou vazio
     const [exercicio, setExercicio] = useState(state?.treino?.exercicio || '');
     const [carga, setCarga] = useState(state?.treino?.carga || '');
     const [repeticoes, setRepeticoes] = useState(state?.treino?.repeticoes || '');
@@ -23,49 +23,45 @@ export default function EditarTreino() {
     const [buscando, setBuscando] = useState(!state?.treino);
 
     useEffect(() => {
+        // Se não veio dados pelo state, busca na API para preencher o formulário
         if (!state?.treino) {
             const buscarDados = async () => {
                 try {
                     const res = await api.get(`/treino/listar`);
-                    // Ajustado para garantir a comparação correta de tipos
                     const treinoEncontrado = res.data.find((t: any) => Number(t.id_do_treino) === Number(id));
 
                     if (treinoEncontrado) {
                         setExercicio(treinoEncontrado.exercicio);
                         setCarga(treinoEncontrado.carga);
                         setRepeticoes(treinoEncontrado.repeticoes);
-                    } else {
-                        toast.error("Treino não encontrado.");
-                        navigate('/dashboard');
                     }
                 } catch (err) {
-                    toast.error("Não foi possível carregar os dados do treino.");
+                    toast.error("Erro ao carregar dados do treino.");
                 } finally {
                     setBuscando(false);
                 }
             };
             buscarDados();
         }
-    }, [id, state, navigate]);
+    }, [id, state]);
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            // A instância 'api' já usa a baseURL do Render e envia o Token no Header
+            // AQUI ESTÁ O PULO DO GATO: api.put usa a URL do Render automaticamente
             await api.put(`/treino/atualizar/${id}`, {
                 exercicio,
                 carga: Number(carga),
                 repeticoes: Number(repeticoes)
             });
 
-            toast.success("Evolução registrada na Forja! 🔥");
+            toast.success("Treino atualizado com sucesso! 💪");
 
-            // PRIMEIRO: Desativa o loading para o componente "limpar" o estado
             setLoading(false);
 
-            // SEGUNDO: Espera um pouco antes de navegar para evitar o erro 'removeChild'
+            // Delay para evitar o erro de 'removeChild' no React
             setTimeout(() => {
                 navigate('/dashboard');
             }, 600);
@@ -87,25 +83,19 @@ export default function EditarTreino() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4 relative overflow-hidden font-sans">
-            {/* Efeito de luz no fundo */}
-            <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full"></div>
-
-            <div className="w-full max-w-md z-10 p-[1px] rounded-[32px] bg-gradient-to-b from-zinc-700 to-transparent">
-                <div className="bg-zinc-950/90 backdrop-blur-xl p-10 rounded-[31px] shadow-2xl">
-
+        <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4 font-sans">
+            <div className="w-full max-w-md p-[1px] rounded-[32px] bg-gradient-to-b from-zinc-700 to-transparent">
+                <div className="bg-zinc-950 p-10 rounded-[31px] shadow-2xl">
                     <header className="mb-10">
                         <button
                             onClick={() => navigate('/dashboard')}
-                            className="text-zinc-500 hover:text-white flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] mb-6 transition-all group"
+                            className="text-zinc-500 hover:text-white flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] mb-6 transition-all"
                         >
-                            <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-                            Voltar ao Painel
+                            <ArrowLeft size={14} /> Voltar ao Painel
                         </button>
-                        <h2 className="text-3xl font-black italic text-white uppercase tracking-tighter leading-none">
+                        <h2 className="text-3xl font-black italic text-white uppercase tracking-tighter">
                             Ajustar <span className="text-orange-600">Treino</span>
                         </h2>
-                        <div className="h-1 w-12 bg-orange-600 mt-3 rounded-full"></div>
                     </header>
 
                     <form onSubmit={handleUpdate} className="space-y-6">
@@ -117,8 +107,8 @@ export default function EditarTreino() {
                                 required
                                 value={exercicio}
                                 onChange={e => setExercicio(e.target.value)}
-                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none transition-all placeholder:text-zinc-700"
-                                placeholder="Ex: Leg Press 45°"
+                                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 outline-none transition-all"
+                                placeholder="Ex: Rosca Direta"
                             />
                         </div>
 
@@ -132,7 +122,7 @@ export default function EditarTreino() {
                                     type="number"
                                     value={carga}
                                     onChange={e => setCarga(e.target.value)}
-                                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none transition-all"
+                                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 outline-none"
                                 />
                             </div>
 
@@ -145,7 +135,7 @@ export default function EditarTreino() {
                                     type="number"
                                     value={repeticoes}
                                     onChange={e => setRepeticoes(e.target.value)}
-                                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 focus:ring-1 focus:ring-orange-600 outline-none transition-all"
+                                    className="w-full bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4 text-white focus:border-orange-600 outline-none"
                                 />
                             </div>
                         </div>
@@ -154,32 +144,14 @@ export default function EditarTreino() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full group relative bg-orange-600 hover:bg-orange-500 py-5 rounded-2xl font-black text-white flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(234,88,12,0.2)] overflow-hidden"
+                                className="w-full bg-orange-600 hover:bg-orange-500 py-5 rounded-2xl font-black text-white flex items-center justify-center gap-3 transition-all uppercase italic tracking-wider shadow-[0_0_20px_rgba(234,88,12,0.2)]"
                             >
-                                <span className="relative z-10 uppercase italic tracking-wider flex items-center gap-2">
-                                    {loading ? "Sincronizando..." : (
-                                        <>
-                                            <Save size={20} />
-                                            Salvar Alterações
-                                        </>
-                                    )}
-                                </span>
-                                {!loading && (
-                                    <div className="absolute inset-0 w-1/4 h-full bg-white/10 skew-x-[-20deg] group-hover:left-[100%] transition-all duration-500 left-[-100%]"></div>
+                                {loading ? "Sincronizando..." : (
+                                    <>
+                                        <Save size={20} />
+                                        Salvar Alterações
+                                    </>
                                 )}
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setExercicio(state?.treino?.exercicio || '');
-                                    setCarga(state?.treino?.carga || '');
-                                    setRepeticoes(state?.treino?.repeticoes || '');
-                                    toast.info("Valores originais restaurados.");
-                                }}
-                                className="w-full mt-4 flex items-center justify-center gap-2 text-zinc-600 hover:text-zinc-400 text-[10px] font-black uppercase tracking-widest transition-colors"
-                            >
-                                <RotateCcw size={12} /> Descartar alterações
                             </button>
                         </div>
                     </form>
