@@ -37,12 +37,17 @@ export default function Dashboard() {
 
     const carregarTreinos = async () => {
         try {
-            
+            // Usa a instância 'api' que já aponta para o Render
             const res = await api.get('/treino/listar');
-            setExercicios(res.data);
-        } catch (err) {
+            // Garante que exercicios seja sempre um array
+            setExercicios(Array.isArray(res.data) ? res.data : []);
+        } catch (err: any) {
             console.error("Erro ao carregar:", err);
-            toast.error("Erro ao sincronizar com a Forja.");
+            // Se der 401, o interceptor da api.ts já deve cuidar, 
+            // mas aqui evitamos que o loading fique infinito
+            if (err.response?.status !== 401) {
+                toast.error("Erro ao sincronizar com a Forja.");
+            }
         } finally {
             setLoading(false);
         }
@@ -53,14 +58,15 @@ export default function Dashboard() {
     }, []);
 
     const exerciciosFiltrados = exercicios.filter(ex =>
-        ex.exercicio.toLowerCase().includes(busca.toLowerCase())
+        ex.exercicio?.toLowerCase().includes(busca.toLowerCase())
     );
 
-    const dadosGrafico = exercicios.map(ex => ({
+    // Prepara os dados do gráfico apenas se houver exercícios
+    const dadosGrafico = exercicios.length > 0 ? exercicios.map(ex => ({
         name: ex.exercicio.length > 8 ? ex.exercicio.substring(0, 8) + '..' : ex.exercicio,
         fullName: ex.exercicio,
-        volume: Number(ex.carga) * Number(ex.repeticoes)
-    })).slice(0, 6);
+        volume: (Number(ex.carga) || 0) * (Number(ex.repeticoes) || 0)
+    })).slice(0, 6) : [];
 
     const abrirConfirmacao = (id: number) => {
         setIdParaDeletar(id);
@@ -73,7 +79,7 @@ export default function Dashboard() {
         try {
             await api.delete(`/treino/deletar/${idParaDeletar}`);
 
-            setExercicios(exercicios.filter(t => t.id_do_treino !== idParaDeletar));
+            setExercicios(prev => prev.filter(t => t.id_do_treino !== idParaDeletar));
             setModalAberto(false);
 
             toast.error("REGISTRO ELIMINADO!", {
@@ -170,8 +176,8 @@ export default function Dashboard() {
 
             <main className="max-w-7xl mx-auto space-y-6 md:space-y-8 relative z-10">
 
-                {/* GRÁFICO RESPONSIVO */}
-                {!loading && exercicios.length > 0 && (
+                {/* GRÁFICO RESPONSIVO - Só aparece se tiver dados */}
+                {!loading && dadosGrafico.length > 0 ? (
                     <section className="bg-zinc-950/40 border border-zinc-900 p-5 md:p-8 rounded-[32px] backdrop-blur-xl">
                         <div className="flex items-center gap-3 mb-6 md:mb-8">
                             <BarChart3 size={18} className="text-orange-500" />
@@ -194,7 +200,7 @@ export default function Dashboard() {
                                         cursor={{ fill: '#18181b' }}
                                         contentStyle={{ backgroundColor: '#09090b', border: '1px solid #27272a', borderRadius: '12px', fontSize: '12px' }}
                                     />
-                                    <Bar dataKey="volume" radius={[4, 4, 0, 0]} barSize={window.innerWidth < 640 ? 25 : 40}>
+                                    <Bar dataKey="volume" radius={[4, 4, 0, 0]} barSize={40}>
                                         {dadosGrafico.map((_, index) => (
                                             <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#ea580c' : '#9a3412'} />
                                         ))}
@@ -203,6 +209,10 @@ export default function Dashboard() {
                             </ResponsiveContainer>
                         </div>
                     </section>
+                ) : !loading && (
+                    <div className="bg-zinc-900/10 border border-dashed border-zinc-800 p-10 rounded-[32px] text-center">
+                        <p className="text-zinc-600 uppercase text-[10px] font-black tracking-widest">Nenhum dado para o gráfico ainda</p>
+                    </div>
                 )}
 
                 <div className="relative group">
@@ -223,7 +233,7 @@ export default function Dashboard() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                        {exerciciosFiltrados.map((item) => (
+                        {exerciciosFiltrados.length > 0 ? exerciciosFiltrados.map((item) => (
                             <div key={item.id_do_treino} className="group bg-zinc-950/60 border border-zinc-900 p-6 md:p-8 rounded-[32px] hover:border-orange-600/40 transition-all duration-300">
                                 <div className="flex justify-between items-start mb-6">
                                     <h3 className="text-lg md:text-xl font-black uppercase italic group-hover:text-orange-500 transition-colors leading-tight">
@@ -263,7 +273,11 @@ export default function Dashboard() {
                                     </button>
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <div className="col-span-full py-10 text-center">
+                                <p className="text-zinc-600 uppercase font-black italic tracking-tighter text-xl">A Forja está vazia. Comece a treinar!</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </main>
