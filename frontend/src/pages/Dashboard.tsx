@@ -37,6 +37,7 @@ export default function Dashboard() {
 
     const carregarTreinos = async () => {
         try {
+            
             const res = await api.get('/treino/listar');
             setExercicios(res.data);
         } catch (err) {
