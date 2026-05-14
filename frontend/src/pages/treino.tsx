@@ -23,19 +23,12 @@ export default function CriarTreino() {
             });
 
             toast.success("Exercício forjado com sucesso! 💪");
+
             setTimeout(() => {
                 navigate('/dashboard');
             }, 500);
-
         } catch (err: any) {
-            console.error("Erro ao salvar:", err);
-            if (err.response?.status === 401) {
-                toast.error("Sessão expirada ou inválida.");
-                localStorage.clear();
-                navigate('/');
-            } else {
-                toast.error("Erro ao sincronizar com a Forja.");
-            }
+            toast.error("Erro ao salvar.");
         } finally {
             setLoading(false);
         }
