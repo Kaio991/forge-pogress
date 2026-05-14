@@ -27,12 +27,16 @@ export default function EditarTreino() {
             const buscarDados = async () => {
                 try {
                     const res = await api.get(`/treino/listar`);
-                    const treinoEncontrado = res.data.find((t: any) => t.id_do_treino === Number(id));
+                    // Ajustado para garantir a comparação correta de tipos
+                    const treinoEncontrado = res.data.find((t: any) => Number(t.id_do_treino) === Number(id));
 
                     if (treinoEncontrado) {
                         setExercicio(treinoEncontrado.exercicio);
                         setCarga(treinoEncontrado.carga);
                         setRepeticoes(treinoEncontrado.repeticoes);
+                    } else {
+                        toast.error("Treino não encontrado.");
+                        navigate('/dashboard');
                     }
                 } catch (err) {
                     toast.error("Não foi possível carregar os dados do treino.");
@@ -42,24 +46,35 @@ export default function EditarTreino() {
             };
             buscarDados();
         }
-    }, [id, state]);
+    }, [id, state, navigate]);
 
     const handleUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+
         try {
+            // A instância 'api' já cuida da baseURL do Render e do Token
             await api.put(`/treino/atualizar/${id}`, {
                 exercicio,
                 carga: Number(carga),
                 repeticoes: Number(repeticoes)
             });
+
             toast.success("Evolução registrada na Forja! 🔥");
-            navigate('/dashboard');
+
+            // ESSENCIAL: Desativar o loading antes de sair para o React não se perder
+            setLoading(false);
+
+            // Delay de segurança para evitar erro de 'removeChild'
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 600);
+
         } catch (err: any) {
+            setLoading(false);
             const msg = err.response?.data?.mensagem || "Erro ao atualizar treino.";
             toast.error(msg);
-        } finally {
-            setLoading(false);
+            console.error("Erro na atualização:", err);
         }
     };
 
@@ -73,6 +88,7 @@ export default function EditarTreino() {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#050505] p-4 relative overflow-hidden font-sans">
+            {/* Efeito de luz no fundo */}
             <div className="absolute top-[-10%] right-[-10%] w-[40%] h-[40%] bg-orange-600/5 blur-[120px] rounded-full"></div>
 
             <div className="w-full max-w-md z-10 p-[1px] rounded-[32px] bg-gradient-to-b from-zinc-700 to-transparent">
@@ -141,7 +157,7 @@ export default function EditarTreino() {
                                 className="w-full group relative bg-orange-600 hover:bg-orange-500 py-5 rounded-2xl font-black text-white flex items-center justify-center gap-3 transition-all shadow-[0_0_20px_rgba(234,88,12,0.2)] overflow-hidden"
                             >
                                 <span className="relative z-10 uppercase italic tracking-wider flex items-center gap-2">
-                                    {loading ? "Salvando..." : (
+                                    {loading ? "Sincronizando..." : (
                                         <>
                                             <Save size={20} />
                                             Salvar Alterações
