@@ -53,7 +53,7 @@ export default function EditarTreino() {
         setLoading(true);
 
         try {
-            // A instância 'api' já cuida da baseURL do Render e do Token
+            // A instância 'api' já usa a baseURL do Render e envia o Token no Header
             await api.put(`/treino/atualizar/${id}`, {
                 exercicio,
                 carga: Number(carga),
@@ -62,10 +62,10 @@ export default function EditarTreino() {
 
             toast.success("Evolução registrada na Forja! 🔥");
 
-            // ESSENCIAL: Desativar o loading antes de sair para o React não se perder
+            // PRIMEIRO: Desativa o loading para o componente "limpar" o estado
             setLoading(false);
 
-            // Delay de segurança para evitar erro de 'removeChild'
+            // SEGUNDO: Espera um pouco antes de navegar para evitar o erro 'removeChild'
             setTimeout(() => {
                 navigate('/dashboard');
             }, 600);
