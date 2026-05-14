@@ -22,15 +22,21 @@ export default function CriarTreino() {
                 repeticoes: Number(repeticoes)
             });
 
+        
             toast.success("Exercício forjado com sucesso! 💪");
 
-            setTimeout(() => {
-                navigate('/dashboard');
-            }, 500);
-        } catch (err: any) {
-            toast.error("Erro ao salvar.");
-        } finally {
+            
             setLoading(false);
+
+            
+             setTimeout(() => {
+                navigate('/dashboard');
+            }, 800); 
+
+        } catch (err: any) {
+            setLoading(false); 
+            console.error("Erro ao salvar:", err);
+            toast.error("Erro ao sincronizar com a Forja.");
         }
     };
 
